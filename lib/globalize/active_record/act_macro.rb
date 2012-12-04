@@ -20,10 +20,16 @@ module Globalize
 
           translation_class.table_name = options[:table_name] if translation_class.table_name.blank?
 
-          has_many :translations, :class_name  => translation_class.name,
-                                  :foreign_key => options[:foreign_key],
-                                  :dependent   => :destroy,
-                                  :extend      => HasManyExtensions
+
+          has_many_options = {
+              :class_name  => translation_class.name,
+              :foreign_key => options[:foreign_key],
+              :dependent   => options[:dependent] || :destroy,
+              :extend      => HasManyExtensions
+          }
+          has_many_options.delete(:dependent) if options[:dependent] == false
+
+          has_many :translations, has_many_options
 
           after_create :save_translations!
           after_update :save_translations!
